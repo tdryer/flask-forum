@@ -1,0 +1,21 @@
+{% extends "template.html" %}
+{% block content %}
+<h1>Topics</h1>
+<a href="/topic/new">Post new topic</a>
+{% if topics %}
+<div id="topic-list">
+<ul>
+{% for topic in topics %}
+<li>
+<a href="/topic/{{ topic["topic_id"] }}">{{ topic["subject"] }}</a>
+ - {{ topic["replies"] }} 
+{% if topic["replies"] != 1 %} replies {% else %} reply {% endif %}
+<p class="updated-date">{{ topic["last_reply_date"]|datetimeelapsedformat }}</p>
+</li>
+{% endfor %}
+</ul>
+</div>
+{% else %}
+<p>There doesn't seem to be any topics!</p>
+{% endif %}
+{% endblock %}

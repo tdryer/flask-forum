@@ -1,0 +1,12 @@
+{% extends "template.html" %}
+{% block content %}
+<h1>Create an account</h1>
+<form name="input" action="register" method="post">
+Username: <input type="text" name="username" maxlength="{{ max_len }}" value="{{ username }}" /><br />
+Password: <input type="password" name="password1" /><br />
+Password (confirm): <input type="password" name="password2" /><br />
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+{% if message %}<p class="message">{{ message }}</p>{% endif %}
+<input type="submit" value="Create Account" />
+</form>
+{% endblock %}

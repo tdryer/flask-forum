@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Test</title>
+<link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1>Test Site</h1>
+<ul>
+{% if g.username %}
+<li>
+<form name="input" action="/logout" method="post">
+Logged in as {{ g.username }}.
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+<input type="submit" value="Logout" />
+</form>
+</li>
+{% endif %}
+<li><a href="/">Home</a></li>
+{% if not g.username %}
+<li><a href="/login">Login</a></li>
+<li><a href="/register">Register</a></li>
+{% endif %}
+</ul>
+</div>
+<div id="main">
+{% block content %}
+<h1>{{ page_name }}</h1>
+{{ page_body }}
+{% endblock %}
+</div>
+</body>
+</html>

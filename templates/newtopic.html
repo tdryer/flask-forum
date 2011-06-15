@@ -1,0 +1,16 @@
+{% extends "template.html" %}
+{% block content %}
+<h1>New topic</h1>
+{% if g.username %}
+<form name="input" action="/topic/new" method="post">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+Subject: <input type="text" name="subject" /><br />
+<textarea name="content" cols="40" rows="6"></textarea><br />
+{% if message %}<p class="message">{{ message }}</p>{% endif %}
+<input type="submit" value="Post Topic" />
+</form>
+{% else %}
+<p>You need to <a href="/login">login</a> to post a topic.</p>
+{% endif %}
+
+{% endblock %}

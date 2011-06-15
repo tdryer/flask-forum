@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+{% block content %}
+<h1>{{ subject }}</h1>
+{% if message %}<p class="message">{{ message }}</p>{% endif %}
+<div id="replies">
+<ul>
+{% for reply in replies %}
+<li><b>{{ reply["author"] }}</b> posted:
+<p class="updated-date">{{ reply["time"]|datetimeelapsedformat }}</p>
+<br /><pre>{{ reply["content"] }}</pre></li>
+{% endfor %}
+</ul>
+</div>
+
+<h1>Post a reply</h1>
+{% if g.username %}
+<form name="input" action="/topic/{{ replies[0]["topic_id"] }}" method="post">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+<input name="topic_id" type="hidden" value="{{ replies[0]["topic_id"] }}">
+<textarea name="content" cols="40" rows="6"></textarea><br />
+<input type="submit" value="Post Reply" />
+</form>
+{% else %}
+<p>You need to login to post a reply.</p>
+{% endif %}
+
+{% endblock %}

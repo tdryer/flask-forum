@@ -2,11 +2,11 @@
 {% block content %}
 <h1>Create an account</h1>
 <form name="input" action="register" method="post">
-Username: <input type="text" name="username" maxlength="{{ max_len }}" value="{{ username }}" /><br />
-Password: <input type="password" name="password1" /><br />
-Password (confirm): <input type="password" name="password2" /><br />
-<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
-{% if message %}<p class="message">{{ message }}</p>{% endif %}
+{{ form.username.label }} {{ form.username }}<br />
+{{ form.password1.label }} {{ form.password1 }}<br />
+{{ form.password2.label }} {{ form.password2 }}<br />
+{{ form.hidden_tag() }}
+{% from "_formhelpers.html" import render_form_errors %} {{ render_form_errors(form) }}
 <input type="submit" value="Create Account" />
 </form>
 {% endblock %}

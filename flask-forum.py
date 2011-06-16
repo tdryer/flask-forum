@@ -4,7 +4,10 @@ from random import choice
 from string import ascii_uppercase, ascii_lowercase, digits
 from datetime import datetime
 from time import time
-from flask import Flask, render_template, request, g, redirect, session, abort
+from flask import Flask, render_template, request, g, redirect, session, \
+    abort, url_for
+from flaskext.wtf import Form, TextField, PasswordField, Required, EqualTo, \
+    Length, ValidationError
 app = Flask(__name__)
 
 SECRET_KEY = "one two three four"
@@ -15,6 +18,21 @@ MAX_USERNAME_LENGTH = 20
 #TODO: filter all input before adding to db
 #TODO: allow some markup in replies
 #TODO: refactoring /post
+
+class RegistrationForm(Form):
+    username = TextField("Username", validators=[Required(), \
+            Length(max=MAX_USERNAME_LENGTH)])
+    password1 = PasswordField("Password", validators=[Required()])
+    password2 = PasswordField("Password (verify)", validators=[Required(), \
+            EqualTo("password1", message="Passwords must match.")])
+
+    def validate_username(form, field):
+        # check if username is in use
+        username = field.data
+        existing = query_db("SELECT * FROM users WHERE username = ?", \
+                [username], one=True)
+        if existing != None:
+            raise ValidationError("Sorry, this username is already taken.")
 
 def format_datetime(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d @ %I:%M %p')
@@ -63,7 +81,9 @@ def before_request():
     if request.method == "POST":
         token = session.pop("csrf_token", None)
         if not token or token != request.form.get("csrf_token"):
-            abort(403)
+            #abort(403)
+            #TODO: remove
+            print "got old type CSRF protection trip"
     # connect database
     g.db = sqlite3.connect(DATABASE)
     # look up the current user
@@ -181,53 +201,20 @@ def logout():
     return render_template("template.html", page_name="Logout", 
             page_body="You have been logged out.")
 
-def is_username_valid(username):
-    if len(username) > MAX_USERNAME_LENGTH:
-        return "Usernames > %i characters are not allowed." % \
-                MAX_USERNAME_LENGTH
-    for c in username:
-        if c not in (ascii_lowercase + ascii_uppercase + digits):
-            return "Usernames may only contain alphanumeric characters."
-    existing = query_db("SELECT * FROM users WHERE username = ?", [username], 
-            one=True)
-    if existing != None:
-        return "That username is already taken."
-    return True
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == "POST":
-        # create new account
-        
-        error = None
-        
-        username = request.form.get("username")
-        password1 = request.form.get("password1")
-        password2 = request.form.get("password2")
-        if not username or not password1 or not password2:
-            error = "All fields are required."
-        
-        if not error:
-            if password1 != password2:
-                error = "Passwords do not match."
-        
-        if not error:
-                res = is_username_valid(username)
-                if res != True:
-                    error = res
-        
-        if not error:
-            error = "Your account has been created."
-            pw_hash = hashpw(password1, gensalt())
-            g.db.execute("INSERT INTO users (username, password_hash)" + 
-                    " values (?, ?)", [username, pw_hash])
-            g.db.commit()
-        
-        return render_template("register.html", message=error,
-                max_len=MAX_USERNAME_LENGTH, username=username)
-    else:
-        # show login form
-        return render_template("register.html", max_len=MAX_USERNAME_LENGTH)
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # create account
+        username = form.username.data
+        password = form.password1.data
+        pw_hash = hashpw(password, gensalt())
+        g.db.execute("INSERT INTO users (username, password_hash) \
+                values (?, ?)", [username, pw_hash])
+        g.db.commit()
+        # redirect to login
+        redirect(url_for("login"))
+    return render_template("register.html", form=form)
 
 if __name__ == '__main__':
     app.secret_key = SECRET_KEY

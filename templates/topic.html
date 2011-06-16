@@ -15,9 +15,7 @@
 <h1>Post a reply</h1>
 {% if g.username %}
 <form name="input" action="/topic/{{ replies[0]["topic_id"] }}" method="post">
-<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
-<input name="topic_id" type="hidden" value="{{ replies[0]["topic_id"] }}">
-<textarea name="content" cols="40" rows="6"></textarea><br />
+{% from "_formhelpers.html" import render_form %} {{ render_form(form) }}
 <input type="submit" value="Post Reply" />
 </form>
 {% else %}

@@ -3,10 +3,7 @@
 <h1>New topic</h1>
 {% if g.username %}
 <form name="input" action="/topic/new" method="post">
-<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
-Subject: <input type="text" name="subject" /><br />
-<textarea name="content" cols="40" rows="6"></textarea><br />
-{% if message %}<p class="message">{{ message }}</p>{% endif %}
+{% from "_formhelpers.html" import render_form %} {{ render_form(form) }}
 <input type="submit" value="Post Topic" />
 </form>
 {% else %}

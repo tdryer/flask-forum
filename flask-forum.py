@@ -1,13 +1,12 @@
 import sqlite3
 from bcrypt import hashpw, gensalt
-from random import choice
 from string import ascii_uppercase, ascii_lowercase, digits
 from datetime import datetime
 from time import time
 from flask import Flask, render_template, request, g, redirect, session, \
     abort, url_for, flash
 from flaskext.wtf import Form, TextField, PasswordField, Required, EqualTo, \
-    Length, ValidationError
+    Length, ValidationError, TextAreaField
 app = Flask(__name__)
 
 SECRET_KEY = "one two three four"
@@ -17,6 +16,7 @@ MAX_USERNAME_LENGTH = 20
 
 #TODO: filter all input before adding to db
 #TODO: allow some markup in replies
+#TODO: fix logout csrf
 
 class RegistrationForm(Form):
     username = TextField("Username", validators=[Required(), \
@@ -37,6 +37,13 @@ class LoginForm(Form):
     username = TextField("Username", validators=[Required(), \
             Length(max=MAX_USERNAME_LENGTH)])
     password = PasswordField("Password", validators=[Required()])
+
+class ReplyForm(Form):
+    content = TextAreaField("Reply", validators=[Required()])
+
+class NewTopicForm(Form):
+    subject = TextField("Subject", validators=[Required()])
+    content = TextAreaField("Reply", validators=[Required()])
 
 def format_datetime(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d @ %I:%M %p')
@@ -73,21 +80,8 @@ def query_db(query, args=(), one=False):
                for idx, value in enumerate(row)) for row in cur.fetchall()]
     return (rv[0] if rv else None) if one else rv
 
-def generate_csrf_token():
-    if "csrf_token" not in session:
-        session["csrf_token"] = ''.join(choice(ascii_uppercase + 
-                digits) for x in range(16))
-    return session["csrf_token"]
-
 @app.before_request
 def before_request():
-    # CSRF protection
-    if request.method == "POST":
-        token = session.pop("csrf_token", None)
-        if not token or token != request.form.get("csrf_token"):
-            #abort(403)
-            #TODO: remove
-            print "got old type CSRF protection trip"
     # connect database
     g.db = sqlite3.connect(DATABASE)
     # look up the current user
@@ -121,21 +115,12 @@ def topics():
 
 @app.route('/topic/new', methods=['GET', 'POST'])
 def new_topic():
-    message = None
-    
-    # view or submit the new topic form
-    if request.method == "POST":
-        if not g.username:
-            abort(403)
-        subject = request.form.get("subject")
-        content = request.form.get("content")
-        if not subject or not content:
-            message = "All fields are required."
-        else:
-            new_topic_id = post_topic(subject, content)
-            return redirect('/topic/' + new_topic_id)
-    
-    return render_template("newtopic.html", message=message)
+    form = NewTopicForm()
+    if form.validate_on_submit():
+        new_topic_id = post_topic(form.subject.data, form.content.data)
+        flash("New topic posted.")
+        return redirect('/topic/' + new_topic_id)
+    return render_template("newtopic.html", form=form)
 
 @app.route('/topic/<topic_id>', methods=['GET', 'POST'])
 def view_topic(topic_id):
@@ -146,22 +131,18 @@ def view_topic(topic_id):
         abort(404)
     subject = subject["subject"]
     
-    message = None
-    
-    if request.method == "POST":
-        # post a reply to this topic
+    form = ReplyForm()
+    if form.validate_on_submit():
+        # need to be logged in
         if not g.username:
             abort(403)
-        content = request.form.get("content")
-        if not content:
-            message = "Nothing to post!"
-        else:
-            post_reply(topic_id, content)
+        post_reply(topic_id, form.content.data)
+        flash("Reply posted.")
     
     replies = query_db("SELECT * FROM reply WHERE topic_id = ? ORDER BY time",
             [topic_id])
     return render_template("topic.html", subject=subject, replies=replies, 
-                           message=message)
+                           form=form)
 
 def post_topic(subject, content):
     g.db.execute("INSERT INTO topic (subject) values (?);", [subject])
@@ -221,7 +202,6 @@ def register():
 
 if __name__ == '__main__':
     app.secret_key = SECRET_KEY
-    app.jinja_env.globals['csrf_token'] = generate_csrf_token
     app.jinja_env.filters['datetimeformat'] = format_datetime
     app.jinja_env.filters['datetimeelapsedformat'] = format_elapsed_datetime
     app.run(debug=True)

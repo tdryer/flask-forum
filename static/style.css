@@ -17,17 +17,18 @@ body {
 #header li {
     list-style-type: none;
     float: left;
-    
     line-height: 84px;
     text-align: center;
+    margin-right: 1em;
 }
 
 #header li a {
     display: block;
     background-color: white;
+    color: black;
     width: 100px;
-    margin-left: 1px;
     text-decoration: none;
+    font-size: 14pt;
 }
 
 #header li a:hover {
@@ -101,4 +102,34 @@ p.updated-date {
     margin: 0px;
     font-family: inherit;
     white-space: pre-wrap; /* preserves whitespace while allowing line-wrap */
+}
+
+#footer {
+    text-align: center;
+    color: gray;
+    font-size: 10pt;
+    font-family: sans-serif;
+    padding-top: 2em;
+}
+
+#hr {
+    width: 50%;
+    height: 5px;
+    background-color: black;
+    margin: auto;
+}
+
+ul.flashes {
+    background-color: #c3d9ff;
+    width: 75%;
+    margin: auto;
+    text-align: center;
+    list-style: none;
+    padding: 0px;
+    margin-top: 1em;
+    border-radius: 10px;
+}
+
+ul.form-errors {
+    color: red;
 }

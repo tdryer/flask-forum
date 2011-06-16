@@ -4,7 +4,7 @@
 {% endfor %}
 {{ form.hidden_tag() }}
 {% if form.errors %}
-<ul>
+<ul class="form-errors">
     {% for field_name in form.errors %}
         {% if form.errors[field_name] %}
             {% for error in form.errors[field_name] %}

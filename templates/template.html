@@ -16,7 +16,7 @@ Logged in as {{ g.username }}.
 </form>
 </li>
 {% endif %}
-<li><a href="/">Home</a></li>
+<li><a href="/">Topics</a></li>
 {% if not g.username %}
 <li><a href="/login">Login</a></li>
 <li><a href="/register">Register</a></li>
@@ -33,6 +33,10 @@ Logged in as {{ g.username }}.
 <h1>{{ page_name }}</h1>
 {{ page_body }}
 {% endblock %}
+</div>
+<div id="footer">
+<div id="hr"></div>
+powered by flask-forum
 </div>
 </body>
 </html>

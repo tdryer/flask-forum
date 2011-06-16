@@ -5,7 +5,7 @@ from string import ascii_uppercase, ascii_lowercase, digits
 from datetime import datetime
 from time import time
 from flask import Flask, render_template, request, g, redirect, session, \
-    abort, url_for
+    abort, url_for, flash
 from flaskext.wtf import Form, TextField, PasswordField, Required, EqualTo, \
     Length, ValidationError
 app = Flask(__name__)
@@ -17,7 +17,6 @@ MAX_USERNAME_LENGTH = 20
 
 #TODO: filter all input before adding to db
 #TODO: allow some markup in replies
-#TODO: refactoring /post
 
 class RegistrationForm(Form):
     username = TextField("Username", validators=[Required(), \
@@ -33,6 +32,11 @@ class RegistrationForm(Form):
                 [username], one=True)
         if existing != None:
             raise ValidationError("Sorry, this username is already taken.")
+
+class LoginForm(Form):
+    username = TextField("Username", validators=[Required(), \
+            Length(max=MAX_USERNAME_LENGTH)])
+    password = PasswordField("Password", validators=[Required()])
 
 def format_datetime(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d @ %I:%M %p')
@@ -174,25 +178,23 @@ def post_reply(topic_id, content):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    message = None
-    username = ""
-    if request.method == "POST":
-        # log in the user
-        success = False
-        username = request.form["username"]
-        password = request.form["password"]
-        user = query_db("SELECT * FROM users WHERE username = ?", [username], 
-                one=True)
+    form = LoginForm()
+    if form.validate_on_submit():
+        # check if username/password is correct
+        username = form.username.data
+        password = form.password.data
+        user = query_db("SELECT password_hash FROM users WHERE username = ?", \
+                [username], one=True)
         if user != None:
-            if hashpw(password, user["password_hash"]) == user["password_hash"]:
-                success = True
-        if success:
-            session["username"] = username
-            return redirect("/")
-        else:
-            message = "Incorrect username or password."
-    # display login form
-    return render_template("login.html", message=message, username=username)
+            pw_hash = hashpw(password, user["password_hash"])
+            if (pw_hash == user["password_hash"]):
+                # login and redirect to topics
+                session["username"] = username
+                flash("Login successful.")
+                return redirect("/")
+        # flash an error
+        flash("Invalid username or password.")
+    return render_template("login.html", form=form)
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -213,7 +215,8 @@ def register():
                 values (?, ?)", [username, pw_hash])
         g.db.commit()
         # redirect to login
-        redirect(url_for("login"))
+        flash("Account created. Login to continue.")
+        return redirect(url_for("login"))
     return render_template("register.html", form=form)
 
 if __name__ == '__main__':

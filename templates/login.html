@@ -2,10 +2,7 @@
 {% block content %}
 <h1>Login</h1>
 <form name="input" action="login" method="post">
-Username: <input type="text" name="username" value="{{ username }}"/><br />
-Password: <input type="password" name="password" /><br />
-<input name="csrf_token" type="hidden" value="{{ csrf_token() }}">
-{% if message %}<p class="message">{{ message }}</p>{% endif %}
+{% from "_formhelpers.html" import render_form %} {{ render_form(form) }}
 <input type="submit" value="Login" />
 </form>
 {% endblock %}

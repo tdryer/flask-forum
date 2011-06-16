@@ -1,4 +1,8 @@
-{% macro render_form_errors(form) %}
+{% macro render_form(form) %}
+{% for field in form %}
+{% if field.id != "csrf" %}{{ field.label }} {{ field }} <br />{% endif %}
+{% endfor %}
+{{ form.hidden_tag() }}
 {% if form.errors %}
 <ul>
     {% for field_name in form.errors %}
@@ -11,4 +15,3 @@
 </ul>
 {% endif %}
 {% endmacro %}
-

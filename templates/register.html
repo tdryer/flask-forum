@@ -2,11 +2,7 @@
 {% block content %}
 <h1>Create an account</h1>
 <form name="input" action="register" method="post">
-{{ form.username.label }} {{ form.username }}<br />
-{{ form.password1.label }} {{ form.password1 }}<br />
-{{ form.password2.label }} {{ form.password2 }}<br />
-{{ form.hidden_tag() }}
-{% from "_formhelpers.html" import render_form_errors %} {{ render_form_errors(form) }}
+{% from "_formhelpers.html" import render_form %} {{ render_form(form) }}
 <input type="submit" value="Create Account" />
 </form>
 {% endblock %}

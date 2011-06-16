@@ -62,6 +62,37 @@ body {
     padding: 1em;
 }
 
+#main form div {
+    margin-bottom: 0.5em;
+}
+
+#main form label {
+    text-align: right;
+    float: left;
+    width: 23%;
+    padding-right: 2%;
+}
+
+#main form textarea, #main form input {
+    width: 75%;
+}
+
+#main form textarea {
+    height: 8em;
+}
+
+#main form input[type="submit"] {
+    margin-left: 25%;
+    margin-right: 25%; /* needed in some situations */
+    width: auto;
+}
+
+ul.form-errors {
+    color: red;
+    list-style-type: none;
+    padding-left: 0px;
+}
+
 p.message {
     color: red;
 }
@@ -128,8 +159,4 @@ ul.flashes {
     padding: 0px;
     margin-top: 1em;
     border-radius: 10px;
-}
-
-ul.form-errors {
-    color: red;
 }

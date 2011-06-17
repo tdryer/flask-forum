@@ -1,4 +1,5 @@
 {% extends "template.html" %}
+{% block title %}{{ subject }}{% endblock %}
 {% block content %}
 <h1>{{ subject }}</h1>
 {% if message %}<p class="message">{{ message }}</p>{% endif %}

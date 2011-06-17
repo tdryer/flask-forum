@@ -204,5 +204,5 @@ if __name__ == '__main__':
     app.secret_key = SECRET_KEY
     app.jinja_env.filters['datetimeformat'] = format_datetime
     app.jinja_env.filters['datetimeelapsedformat'] = format_elapsed_datetime
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
     

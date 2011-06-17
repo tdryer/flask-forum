@@ -56,6 +56,10 @@ body {
     font-size: 14pt;
 }
 
+#main a {
+    color: blue;
+}
+
 #main form {
     background-color: #c3d9ff;
     width: 50%;
@@ -83,7 +87,7 @@ body {
 
 #main form input[type="submit"] {
     margin-left: 25%;
-    margin-right: 25%; /* needed in some situations */
+    margin-right: 30%; /* needed in some situations */
     width: auto;
 }
 
@@ -159,4 +163,29 @@ ul.flashes {
     padding: 0px;
     margin-top: 1em;
     border-radius: 10px;
+}
+
+textarea, input {
+    border: 1px solid gray;
+    border-radius: 4px;
+    padding: 3px;
+}
+
+textarea:focus, input:focus {
+    border-color: black;
+}
+
+input[type="submit"] {
+    border-radius: 11px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    text-shadow: rgba(0, 0, 0, 0.3) 0 -1px 0;
+    background-color: gray;
+    border-color: gray;
+    padding: 2px 8px;
+}
+
+input[type="submit"]:hover {
+    border-color: black;
 }

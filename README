@@ -1,0 +1,34 @@
+flask-form is very simple web forum written with Python (language), Flask (web framework), SQLite (database), and WTForms (HTML forms frameword). It was written as an exercise, and is probably not suitable for real use.
+
+
+How to run on Ubuntu 11.04
+
+Install dependencies:
+sudo apt-get install python-flask sqlite3 python-bcrypt python-flaskext.wtf
+
+Create database:
+sqlite3 flask-forum.db < schema.sql
+
+Run development server:
+python app.py
+
+Visit localhost:5000
+
+
+How to deploy using nginx with fastcgi
+
+Install dependencies for deployment:
+sudo apt-get install python-flup nginx
+
+Remove default nginx site:
+sudo rm /etc/nginx/sites-enabled/default
+
+Add new nginx site and enable it:
+sudo cp flask-forum.nginx /etc/nginx/sites-available/
+sudo ln -s /etc/nginx/sites-available/flask-forum.nginx /etc/nginx/sites-enabled/flask-forum.nginx
+
+Start nginx:
+sudo service nginx start
+
+Start the fcgi server (as the same user as nginx):
+sudo -u www-data ./app.fcgi

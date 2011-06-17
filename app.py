@@ -12,6 +12,8 @@ app = Flask(__name__)
 SECRET_KEY = "one two three four"
 DATABASE = "flask-forum.db"
 
+app.secret_key = SECRET_KEY
+
 MAX_USERNAME_LENGTH = 20
 
 #TODO: filter all input before adding to db
@@ -200,9 +202,9 @@ def register():
         return redirect(url_for("login"))
     return render_template("register.html", form=form)
 
+app.jinja_env.filters['datetimeformat'] = format_datetime
+app.jinja_env.filters['datetimeelapsedformat'] = format_elapsed_datetime
+
 if __name__ == '__main__':
-    app.secret_key = SECRET_KEY
-    app.jinja_env.filters['datetimeformat'] = format_datetime
-    app.jinja_env.filters['datetimeelapsedformat'] = format_elapsed_datetime
     app.run(debug=True, host="0.0.0.0")
-    
+

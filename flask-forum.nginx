@@ -1,0 +1,13 @@
+server {
+    listen 80;
+    server_name _;
+    
+    location / { try_files $uri @flask-forum; }
+    location @flask-forum {
+        include fastcgi_params;
+        fastcgi_param PATH_INFO $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME "";
+        fastcgi_pass unix:/tmp/flask-forum.sock;
+    }
+}
+

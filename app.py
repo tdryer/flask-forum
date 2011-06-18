@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+
+"""
+    flask-forum
+    Copyright (C) 2011 Tom Dryer <tomdryer.com@gmail.com>
+    License: 3-clause BSD
+"""
+
+#TODO: format reply text before writing it to the database
+#TODO: add CSRF token to logout
+#TODO: come up with a better SQL query for topics()
+
 import sqlite3
 from bcrypt import hashpw, gensalt
 from string import ascii_uppercase, ascii_lowercase, digits
@@ -9,16 +21,9 @@ from flaskext.wtf import Form, TextField, PasswordField, Required, EqualTo, \
     Length, ValidationError, TextAreaField
 app = Flask(__name__)
 
-SECRET_KEY = "one two three four"
 DATABASE = "flask-forum.db"
-
-app.secret_key = SECRET_KEY
-
+app.secret_key = "development key"
 MAX_USERNAME_LENGTH = 20
-
-#TODO: filter all input before adding to db
-#TODO: allow some markup in replies
-#TODO: fix logout csrf
 
 class RegistrationForm(Form):
     username = TextField("Username", validators=[Required(), \
@@ -52,7 +57,6 @@ def format_datetime(timestamp):
 
 def format_elapsed_datetime(time):
     seconds = int(timestamp()) - int(time)
-    #TODO: round up so 1.99 hours is not displayed as 1 hour?
     minutes = seconds / 60
     hours = minutes / 60
     days = hours / 24
@@ -100,11 +104,9 @@ def after_request(response):
 @app.route('/')
 def topics():
     # get a list of topics sorted by the date of their last reply
-    # TODO: do this without a subquery?
     topics = query_db("SELECT * FROM topic ORDER BY (SELECT MAX(time) FROM \
             reply WHERE reply.topic_id = topic.topic_id) DESC")
     for topic in topics:
-        # TODO: combine these queries into the main one
         # get number of replies to topic
         reply_count = query_db("SELECT count(*) FROM reply WHERE topic_id = ?", 
                 [topic["topic_id"]], one=True)["count(*)"]
